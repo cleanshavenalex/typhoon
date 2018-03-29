@@ -6,7 +6,7 @@ output "ingress_dns_name" {
 # Outputs for worker pools
 
 output "vpc_id" {
-  value       = "${aws_vpc.network.id}"
+  value       = "${var.vpc_id}"
   description = "ID of the VPC for creating worker instances"
 }
 

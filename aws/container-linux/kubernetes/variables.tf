@@ -5,6 +5,11 @@ variable "cluster_name" {
 
 # AWS
 
+variable "vpc_id" {
+  type        = "string"
+  description = "ID of the AWS VPC"
+}
+
 variable "dns_zone" {
   type        = "string"
   description = "AWS Route53 DNS Zone (e.g. aws.example.com)"
@@ -72,6 +77,11 @@ variable "ssh_authorized_key" {
   description = "SSH public key for user 'core'"
 }
 
+variable "aws_ssh_key" {
+  type        = "string"
+  description = "SSH public key for user 'core'"
+}
+
 variable "asset_dir" {
   description = "Path to a directory where generated assets should be placed (contains secrets)"
   type        = "string"
@@ -80,7 +90,7 @@ variable "asset_dir" {
 variable "networking" {
   description = "Choice of networking provider (calico or flannel)"
   type        = "string"
-  default     = "calico"
+  default     = "flannel"
 }
 
 variable "network_mtu" {
@@ -115,4 +125,36 @@ variable "cluster_domain_suffix" {
   description = "Queries for domains with the suffix will be answered by kube-dns. Default is cluster.local (e.g. foo.default.svc.cluster.local) "
   type        = "string"
   default     = "cluster.local"
+}
+
+variable "master_subnets" {
+  type = "list"
+}
+
+variable "worker_subnets" {
+  type = "list"
+}
+
+variable "master_azs" {
+  type = "list"
+}
+
+variable "worker_azs" {
+  type = "list"
+}
+
+variable "private_master_endpoints" {
+  description = "If set to true, private-facing ingress resources are created."
+  default     = true
+}
+
+variable "public_master_endpoints" {
+  description = "If set to true, public-facing ingress resources are created."
+  default     = true
+}
+
+variable "custom_dns_name" {
+  type        = "string"
+  default     = ""
+  description = "DNS prefix used to construct the console and API server endpoints."
 }

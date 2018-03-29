@@ -1,9 +1,9 @@
 # kube-apiserver Network Load Balancer DNS Record
 resource "aws_route53_record" "apiserver" {
   zone_id = "${var.dns_zone_id}"
-
-  name = "${format("%s.%s.", var.cluster_name, var.dns_zone)}"
-  type = "A"
+  vpc_id  = "${var.vpc_id}"
+  name    = "${format("%s.%s.", var.cluster_name, var.dns_zone)}"
+  type    = "A"
 
   # AWS recommends their special "alias" records for ELBs
   alias {
@@ -39,7 +39,7 @@ resource "aws_lb_listener" "apiserver-https" {
 # Target group of controllers
 resource "aws_lb_target_group" "controllers" {
   name        = "${var.cluster_name}-controllers"
-  vpc_id      = "${aws_vpc.network.id}"
+  vpc_id      = "${var.vpc_id}"
   target_type = "instance"
 
   protocol = "TCP"

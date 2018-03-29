@@ -12,13 +12,13 @@ resource "aws_vpc" "network" {
 }
 
 resource "aws_internet_gateway" "gateway" {
-  vpc_id = "${aws_vpc.network.id}"
+  vpc_id = "${var.vpc_id}"
 
   tags = "${map("Name", "${var.cluster_name}")}"
 }
 
 resource "aws_route_table" "default" {
-  vpc_id = "${aws_vpc.network.id}"
+  vpc_id = "${var.vpc_id}"
 
   route {
     cidr_block = "0.0.0.0/0"
