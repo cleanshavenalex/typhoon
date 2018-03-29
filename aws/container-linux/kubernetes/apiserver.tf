@@ -39,7 +39,7 @@ resource "aws_lb_listener" "apiserver-https" {
 # Target group of controllers
 resource "aws_lb_target_group" "controllers" {
   name        = "${var.cluster_name}-controllers"
-  vpc_id      = "${aws_vpc_id}"
+  vpc_id      = "${var.aws_vpc_id}"
   target_type = "instance"
 
   protocol = "TCP"
