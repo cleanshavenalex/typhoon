@@ -35,7 +35,7 @@ resource "aws_instance" "controllers" {
 
   # network
   associate_public_ip_address = true
-  subnet_id                   = "${element(var.master_subnets.*.id, count.index)}"
+  subnet_id                   = "${var.master_subnets[0]}"
   vpc_security_group_ids      = ["${aws_security_group.controller.id}"]
 
   lifecycle {
