@@ -30,6 +30,11 @@ output "subnet_ids" {
   description = "List of subnet IDs for creating worker instances"
 }
 
+output "public_subnets" {
+  value       = ["${aws_subnet.public.*.id}"]
+  description = "List of public subnets for bastion boxes"
+}
+
 output "worker_security_groups" {
   value       = ["${aws_security_group.worker.id}"]
   description = "List of worker security group IDs"

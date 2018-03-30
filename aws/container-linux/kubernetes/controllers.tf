@@ -59,7 +59,7 @@ data "template_file" "controller_config" {
 
     kubeconfig = "${indent(10, module.bootkube.kubeconfig)}"
 
-    #ssh_key               = "${var.ssh_key}"
+    key_name              = "${var.ssh_key}"
     k8s_dns_service_ip    = "${cidrhost(var.service_cidr, 10)}"
     cluster_domain_suffix = "${var.cluster_domain_suffix}"
   }

@@ -1,12 +1,15 @@
 # Secure copy etcd TLS assets to controllers.
 resource "null_resource" "copy-controller-secrets" {
-  count = "${var.controller_count}"
-
   connection {
     type    = "ssh"
-    host    = "${element(aws_instance.controllers.*.private_ip, count.index)}"
-    user    = "core"
+    host    = "${element(aws_instance.bastion.*.public_ip, 0)}"
+    user    = "ubuntu"
     timeout = "15m"
+  }
+
+  # Changes to any instance of the cluster requires re-provisioning
+  triggers {
+    cluster_instance_ids = "${join(",", aws_instance.controllers.*.id)}"
   }
 
   provisioner "file" {
@@ -60,10 +63,11 @@ resource "null_resource" "copy-controller-secrets" {
   }
 }
 
-# Secure copy bootkube assets to ONE controller and start bootkube to perform
+# Secure copy bootkube assets to the bastion and start bootkube to perform
 # one-time self-hosted cluster bootstrapping.
 resource "null_resource" "bootkube-start" {
   depends_on = [
+    "module.bastion",
     "module.bootkube",
     "module.workers",
     "aws_route53_record.apiserver",
@@ -72,9 +76,9 @@ resource "null_resource" "bootkube-start" {
 
   connection {
     type    = "ssh"
-    host    = "${aws_instance.controllers.0.private_ip}"
-    user    = "core"
-    timeout = "15m"
+    host    = "${aws_instance.bastion.0.public_ip}"
+    user    = "ubuntu"
+    timeout = "5m"
   }
 
   provisioner "file" {
@@ -82,10 +86,19 @@ resource "null_resource" "bootkube-start" {
     destination = "$HOME/assets"
   }
 
+  provisioner "file" {
+    source      = "./${var.ssh_key}"
+    destination = "$HOME/${var.ssh_key}.pem"
+  }
+
   provisioner "remote-exec" {
     inline = [
-      "sudo mv $HOME/assets /opt/bootkube",
-      "sudo systemctl start bootkube",
+      #"sudo mv $HOME/assets /opt/bootkube",
+      "sudo scp -i ${var.ssh_key}.pem $HOME/assets core@${aws_instance.controllers.0.private_ip}:/opt/assets",
+
+      "ssh -i ${var.ssh_key}.pem -t core@${aws_instance.controllers.0.private_ip} sudo systemctl start bootkube",
     ]
+
+    #"sudo systemctl start bootkube",
   }
 }
