@@ -10,8 +10,18 @@ output "vpc_id" {
   description = "ID of the VPC for creating worker instances"
 }
 
+output "master_subnets" {
+  value       = ["${var.master_subnets}"]
+  description = "List of master subnet ids"
+}
+
+output "worker_subnets" {
+  value       = ["${var.worker_subnets}"]
+  description = "List of subnet IDs for creating worker instances"
+}
+
 output "subnet_ids" {
-  value       = ["${aws_subnet.public.*.id}"]
+  value       = ["${var.worker_subnets}"]
   description = "List of subnet IDs for creating worker instances"
 }
 

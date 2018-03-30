@@ -10,7 +10,7 @@ resource "aws_autoscaling_group" "workers" {
   health_check_grace_period = 30
 
   # network
-  vpc_zone_identifier = ["${var.subnet_ids}"]
+  vpc_zone_identifier = ["${var.worker_subnets}"]
 
   # template
   launch_configuration = "${aws_launch_configuration.worker.name}"
@@ -61,6 +61,7 @@ data "template_file" "worker_config" {
   template = "${file("${path.module}/cl/worker.yaml.tmpl")}"
 
   vars = {
+    vpc_id                = "${var.vpc_id}"
     kubeconfig            = "${indent(10, var.kubeconfig)}"
     ssh_authorized_key    = "${var.ssh_authorized_key}"
     k8s_dns_service_ip    = "${cidrhost(var.service_cidr, 10)}"
@@ -71,5 +72,6 @@ data "template_file" "worker_config" {
 data "ct_config" "worker_ign" {
   content      = "${data.template_file.worker_config.rendered}"
   pretty_print = false
-  snippets     = ["${var.clc_snippets}"]
+
+  #snippets     = ["${var.clc_snippets}"]
 }

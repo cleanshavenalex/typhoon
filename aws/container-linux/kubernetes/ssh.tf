@@ -4,7 +4,7 @@ resource "null_resource" "copy-controller-secrets" {
 
   connection {
     type    = "ssh"
-    host    = "${element(aws_instance.controllers.*.public_ip, count.index)}"
+    host    = "${element(aws_instance.controllers.*.private_ip, count.index)}"
     user    = "core"
     timeout = "15m"
   }
@@ -72,7 +72,7 @@ resource "null_resource" "bootkube-start" {
 
   connection {
     type    = "ssh"
-    host    = "${aws_instance.controllers.0.public_ip}"
+    host    = "${aws_instance.controllers.0.private_ip}"
     user    = "core"
     timeout = "15m"
   }

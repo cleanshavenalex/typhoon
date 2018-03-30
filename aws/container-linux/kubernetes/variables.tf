@@ -77,11 +77,6 @@ variable "ssh_authorized_key" {
   description = "SSH public key for user 'core'"
 }
 
-variable "aws_ssh_key" {
-  type        = "string"
-  description = "SSH public key for user 'core'"
-}
-
 variable "asset_dir" {
   description = "Path to a directory where generated assets should be placed (contains secrets)"
   type        = "string"

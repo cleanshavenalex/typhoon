@@ -1,7 +1,6 @@
 # Discrete DNS records for each controller's private IPv4 for etcd usage
 resource "aws_route53_record" "etcds" {
-  count  = "${var.controller_count}"
-  vpc_is = "${var.vpc_id}"
+  count = "${var.controller_count}"
 
   # DNS Zone where record should be created
   zone_id = "${var.dns_zone_id}"
@@ -34,7 +33,7 @@ resource "aws_instance" "controllers" {
   }
 
   # network
-  associate_public_ip_address = true
+  associate_public_ip_address = false
   subnet_id                   = "${var.master_subnets[0]}"
   vpc_security_group_ids      = ["${aws_security_group.controller.id}"]
 
@@ -79,5 +78,6 @@ data "ct_config" "controller_ign" {
   count        = "${var.controller_count}"
   content      = "${element(data.template_file.controller_config.*.rendered, count.index)}"
   pretty_print = false
-  snippets     = ["${var.controller_clc_snippets}"]
+
+  # snippets     = ["${var.controller_clc_snippets}"]
 }

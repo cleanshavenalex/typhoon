@@ -15,6 +15,11 @@ variable "subnet_ids" {
   description = "Must be set to `subnet_ids` output by cluster"
 }
 
+variable "worker_subnets" {
+  type        = "list"
+  description = "List of subnet ids to put worker nodes in"
+}
+
 variable "security_groups" {
   type        = "list"
   description = "Must be set to `worker_security_groups` output by cluster"
