@@ -22,9 +22,9 @@ resource "aws_instance" "controllers" {
   }
 
   instance_type = "${var.controller_type}"
-
-  ami       = "${data.aws_ami.coreos.image_id}"
-  user_data = "${element(data.ct_config.controller_ign.*.rendered, count.index)}"
+  key_name      = "${var.ssh_key}"
+  ami           = "${data.aws_ami.coreos.image_id}"
+  user_data     = "${element(data.ct_config.controller_ign.*.rendered, count.index)}"
 
   # storage
   root_block_device {
@@ -34,8 +34,9 @@ resource "aws_instance" "controllers" {
 
   # network
   associate_public_ip_address = false
-  subnet_id                   = "${var.master_subnets[0]}"
-  vpc_security_group_ids      = ["${aws_security_group.controller.id}"]
+
+  subnet_id              = "${var.master_subnets[0]}"
+  vpc_security_group_ids = ["${aws_security_group.controller.id}"]
 
   lifecycle {
     ignore_changes = ["ami"]
@@ -56,8 +57,9 @@ data "template_file" "controller_config" {
     # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...
     etcd_initial_cluster = "${join(",", formatlist("%s=https://%s:2380", null_resource.repeat.*.triggers.name, null_resource.repeat.*.triggers.domain))}"
 
-    kubeconfig            = "${indent(10, module.bootkube.kubeconfig)}"
-    ssh_authorized_key    = "${var.ssh_authorized_key}"
+    kubeconfig = "${indent(10, module.bootkube.kubeconfig)}"
+
+    #ssh_key               = "${var.ssh_key}"
     k8s_dns_service_ip    = "${cidrhost(var.service_cidr, 10)}"
     cluster_domain_suffix = "${var.cluster_domain_suffix}"
   }

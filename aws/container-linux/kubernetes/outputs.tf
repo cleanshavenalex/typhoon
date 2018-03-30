@@ -10,6 +10,11 @@ output "vpc_id" {
   description = "ID of the VPC for creating worker instances"
 }
 
+output "ssh_key" {
+  value       = "${var.ssh_key}"
+  description = "Name of the ssh key pair"
+}
+
 output "master_subnets" {
   value       = ["${var.master_subnets}"]
   description = "List of master subnet ids"

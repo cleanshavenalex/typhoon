@@ -10,6 +10,11 @@ variable "vpc_id" {
   description = "ID of the AWS VPC"
 }
 
+variable "internet_gateway" {
+  type        = "string"
+  description = "ID of the internet gateway in the pre-existing VPC"
+}
+
 variable "dns_zone" {
   type        = "string"
   description = "AWS Route53 DNS Zone (e.g. aws.example.com)"
@@ -72,9 +77,9 @@ variable "worker_clc_snippets" {
 
 # configuration
 
-variable "ssh_authorized_key" {
+variable "ssh_key" {
   type        = "string"
-  description = "SSH public key for user 'core'"
+  description = "Name of ssh key"
 }
 
 variable "asset_dir" {

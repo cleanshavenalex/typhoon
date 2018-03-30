@@ -2,7 +2,7 @@
 resource "aws_lb" "ingress" {
   name               = "${var.name}-ingress"
   load_balancer_type = "network"
-  internal           = false
+  internal           = true
 
   subnets = ["${var.worker_subnets}"]
 

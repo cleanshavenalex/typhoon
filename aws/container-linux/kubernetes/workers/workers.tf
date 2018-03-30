@@ -37,18 +37,17 @@ resource "aws_autoscaling_group" "workers" {
 resource "aws_launch_configuration" "worker" {
   image_id      = "${data.aws_ami.coreos.image_id}"
   instance_type = "${var.instance_type}"
+  key_name      = "${var.ssh_key}"
 
-  user_data = "${data.ct_config.worker_ign.rendered}"
+  #user_data = "${data.ct_config.worker_ign.rendered}"
 
   # storage
   root_block_device {
     volume_type = "standard"
     volume_size = "${var.disk_size}"
   }
-
   # network
   security_groups = ["${var.security_groups}"]
-
   lifecycle {
     // Override the default destroy and replace update behavior
     create_before_destroy = true
@@ -61,9 +60,10 @@ data "template_file" "worker_config" {
   template = "${file("${path.module}/cl/worker.yaml.tmpl")}"
 
   vars = {
-    vpc_id                = "${var.vpc_id}"
-    kubeconfig            = "${indent(10, var.kubeconfig)}"
-    ssh_authorized_key    = "${var.ssh_authorized_key}"
+    vpc_id     = "${var.vpc_id}"
+    kubeconfig = "${indent(10, var.kubeconfig)}"
+
+    #ssh_key               = "${var.ssh_key}"
     k8s_dns_service_ip    = "${cidrhost(var.service_cidr, 10)}"
     cluster_domain_suffix = "${var.cluster_domain_suffix}"
   }
