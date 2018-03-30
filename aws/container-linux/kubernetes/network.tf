@@ -28,19 +28,19 @@
 #   }
 #   tags = "${map("Name", "${var.cluster_name}")}"
 # }
-# # Subnets (one per availability zone)
+# Subnets (one per availability zone)
 # resource "aws_subnet" "public" {
-#   count = "${length(data.aws_availability_zones.all.names)}"
+#   count             = "${length(data.aws_availability_zones.all.names)}"
 #   vpc_id            = "${var.vpc_id}"
 #   availability_zone = "${data.aws_availability_zones.all.names[count.index]}"
-#   cidr_block = "${cidrsubnet(var.host_cidr, 4, count.index)}"
+#   cidr_block        = "${cidrsubnet(var.host_cidr, 4, count.index)}"
 #   #ipv6_cidr_block                 = "${cidrsubnet(aws_vpc.network.ipv6_cidr_block, 8, count.index)}"
 #   map_public_ip_on_launch         = true
 #   assign_ipv6_address_on_creation = false
-#   tags = "${map("Name", "${var.cluster_name}-public-${count.index}")}"
+#   tags                            = "${map("Name", "${var.cluster_name}-public-${count.index}")}"
 # }
 # resource "aws_route_table_association" "public" {
-#   count = "${length(data.aws_availability_zones.all.names)}"
+#   count          = "${length(data.aws_availability_zones.all.names)}"
 #   route_table_id = "${aws_route_table.default.id}"
 #   subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
 # }
