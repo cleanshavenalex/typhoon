@@ -5,6 +5,16 @@ variable "cluster_name" {
 
 # AWS
 
+variable "vpc_id" {
+  type        = "string"
+  description = "ID of the AWS VPC"
+}
+
+variable "internet_gateway" {
+  type        = "string"
+  description = "ID of the internet gateway in the pre-existing VPC"
+}
+
 variable "dns_zone" {
   type        = "string"
   description = "AWS Route53 DNS Zone (e.g. aws.example.com)"
@@ -67,9 +77,9 @@ variable "worker_clc_snippets" {
 
 # configuration
 
-variable "ssh_authorized_key" {
+variable "ssh_key" {
   type        = "string"
-  description = "SSH public key for user 'core'"
+  description = "Name of ssh key"
 }
 
 variable "asset_dir" {
@@ -80,7 +90,7 @@ variable "asset_dir" {
 variable "networking" {
   description = "Choice of networking provider (calico or flannel)"
   type        = "string"
-  default     = "calico"
+  default     = "flannel"
 }
 
 variable "network_mtu" {
@@ -93,6 +103,12 @@ variable "host_cidr" {
   description = "CIDR IPv4 range to assign to EC2 nodes"
   type        = "string"
   default     = "10.0.0.0/16"
+}
+
+variable "public_subnet_cidr" {
+  type        = "string"
+  description = "CIDR for the public subnet. Used by the Bastion host"
+  default     = "10.2.0.0/24"
 }
 
 variable "pod_cidr" {
@@ -115,4 +131,46 @@ variable "cluster_domain_suffix" {
   description = "Queries for domains with the suffix will be answered by kube-dns. Default is cluster.local (e.g. foo.default.svc.cluster.local) "
   type        = "string"
   default     = "cluster.local"
+}
+
+variable "master_subnets" {
+  type = "list"
+}
+
+variable "worker_subnets" {
+  type = "list"
+}
+
+variable "master_azs" {
+  type = "list"
+}
+
+variable "worker_azs" {
+  type = "list"
+}
+
+variable "private_master_endpoints" {
+  description = "If set to true, private-facing ingress resources are created."
+  default     = true
+}
+
+variable "public_master_endpoints" {
+  description = "If set to true, public-facing ingress resources are created."
+  default     = true
+}
+
+variable "custom_dns_name" {
+  type        = "string"
+  default     = ""
+  description = "DNS prefix used to construct the console and API server endpoints."
+}
+
+variable "bastion_pem_path" {
+  type        = "string"
+  description = "path to the bastion pem file"
+}
+
+variable "bastion_security_group" {
+  type        = "string"
+  description = "Pre-existing security group for the bastion host."
 }

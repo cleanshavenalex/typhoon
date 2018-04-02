@@ -17,9 +17,9 @@ resource "aws_route53_record" "apiserver" {
 resource "aws_lb" "apiserver" {
   name               = "${var.cluster_name}-apiserver"
   load_balancer_type = "network"
-  internal           = false
+  internal           = true
 
-  subnets = ["${aws_subnet.public.*.id}"]
+  subnets = ["${var.master_subnets}"]
 
   enable_cross_zone_load_balancing = true
 }
@@ -39,7 +39,7 @@ resource "aws_lb_listener" "apiserver-https" {
 # Target group of controllers
 resource "aws_lb_target_group" "controllers" {
   name        = "${var.cluster_name}-controllers"
-  vpc_id      = "${aws_vpc.network.id}"
+  vpc_id      = "${var.vpc_id}"
   target_type = "instance"
 
   protocol = "TCP"
@@ -67,3 +67,88 @@ resource "aws_lb_target_group_attachment" "controllers" {
   target_id        = "${element(aws_instance.controllers.*.id, count.index)}"
   port             = 443
 }
+
+# resource "aws_iam_instance_profile" "master_profile" {
+#   name = "${var.cluster_name}-master-profile"
+
+
+#   role = "${var.master_iam_role == "" ?
+#     join("|", aws_iam_role.master_role.*.name) :
+#     join("|", data.aws_iam_role.master_role.*.name)
+#   }"
+# }
+
+
+# data "aws_iam_role" "master_role" {
+#   count = "${var.master_iam_role == "" ? 0 : 1}"
+#   name  = "${var.master_iam_role}"
+# }
+
+
+# resource "aws_iam_role" "master_role" {
+#   count = "${var.master_iam_role == "" ? 1 : 0}"
+#   name  = "${var.cluster_name}-master-role"
+#   path  = "/"
+
+
+#   assume_role_policy = <<EOF
+# {
+#     "Version": "2012-10-17",
+#     "Statement": [
+#         {
+#             "Action": "sts:AssumeRole",
+#             "Principal": {
+#                 "Service": "ec2.amazonaws.com"
+#             },
+#             "Effect": "Allow",
+#             "Sid": ""
+#         }
+#     ]
+# }
+# EOF
+# }
+
+
+# resource "aws_iam_role_policy" "master_policy" {
+#   count = "${var.master_iam_role == "" ? 1 : 0}"
+#   name  = "${var.cluster_name}_master_policy"
+#   role  = "${aws_iam_role.master_role.id}"
+
+
+#   policy = <<EOF
+# {
+#   "Version": "2012-10-17",
+#   "Statement": [
+#     {
+#       "Action": "ec2:*",
+#       "Resource": "*",
+#       "Effect": "Allow"
+#     },
+#     {
+#       "Action": "elasticloadbalancing:*",
+#       "Resource": "*",
+#       "Effect": "Allow"
+#     },
+#     {
+#       "Action" : [
+#         "s3:GetObject",
+#         "s3:HeadObject",
+#         "s3:ListBucket",
+#         "s3:PutObject"
+#       ],
+#       "Resource": "arn:${local.arn}:s3:::*",
+#       "Effect": "Allow"
+#     },
+#     {
+#       "Action" : [
+#         "autoscaling:DescribeAutoScalingGroups",
+#         "autoscaling:DescribeAutoScalingInstances"
+#       ],
+#       "Resource": "*",
+#       "Effect": "Allow"
+#     }
+#   ]
+# }
+# EOF
+# }
+

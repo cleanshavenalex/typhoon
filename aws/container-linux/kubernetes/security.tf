@@ -6,7 +6,7 @@ resource "aws_security_group" "controller" {
   name        = "${var.cluster_name}-controller"
   description = "${var.cluster_name} controller security group"
 
-  vpc_id = "${aws_vpc.network.id}"
+  vpc_id = "${var.vpc_id}"
 
   tags = "${map("Name", "${var.cluster_name}-controller")}"
 }
@@ -182,13 +182,44 @@ resource "aws_security_group_rule" "controller-egress" {
   ipv6_cidr_blocks = ["::/0"]
 }
 
+# Bastion security group
+resource "aws_security_group" "bastion" {
+  name        = "${var.cluster_name}-bastion"
+  description = "${var.cluster_name} bastion security group"
+
+  vpc_id = "${var.vpc_id}"
+
+  tags = "${map("Name", "${var.cluster_name}-bastion")}"
+}
+
+resource "aws_security_group_rule" "bastion-ssh" {
+  security_group_id = "${aws_security_group.bastion.id}"
+
+  type        = "ingress"
+  protocol    = "tcp"
+  from_port   = 22
+  to_port     = 22
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "bastion-egress" {
+  security_group_id = "${aws_security_group.bastion.id}"
+
+  type             = "egress"
+  protocol         = "-1"
+  from_port        = 0
+  to_port          = 0
+  cidr_blocks      = ["0.0.0.0/0"]
+  ipv6_cidr_blocks = ["::/0"]
+}
+
 # Worker security group
 
 resource "aws_security_group" "worker" {
   name        = "${var.cluster_name}-worker"
   description = "${var.cluster_name} worker security group"
 
-  vpc_id = "${aws_vpc.network.id}"
+  vpc_id = "${var.vpc_id}"
 
   tags = "${map("Name", "${var.cluster_name}-worker")}"
 }
