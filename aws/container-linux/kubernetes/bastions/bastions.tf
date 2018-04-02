@@ -20,7 +20,7 @@ resource "aws_instance" "bastion" {
   # network
   associate_public_ip_address = true
   subnet_id                   = "${var.public_subnets[count.index]}"
-  #vpc_security_group_ids      = ["${aws_security_group.controller.id}"]
+  vpc_security_group_ids      = ["${var.security_groups}"]
   lifecycle {
     ignore_changes = ["ami"]
   }

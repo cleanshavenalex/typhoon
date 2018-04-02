@@ -105,6 +105,12 @@ variable "host_cidr" {
   default     = "10.0.0.0/16"
 }
 
+variable "public_subnet_cidr" {
+  type        = "string"
+  description = "CIDR for the public subnet. Used by the Bastion host"
+  default     = "10.2.0.0/24"
+}
+
 variable "pod_cidr" {
   description = "CIDR IPv4 range to assign Kubernetes pods"
   type        = "string"
@@ -157,4 +163,14 @@ variable "custom_dns_name" {
   type        = "string"
   default     = ""
   description = "DNS prefix used to construct the console and API server endpoints."
+}
+
+variable "bastion_pem_path" {
+  type        = "string"
+  description = "path to the bastion pem file"
+}
+
+variable "bastion_security_group" {
+  type        = "string"
+  description = "Pre-existing security group for the bastion host."
 }

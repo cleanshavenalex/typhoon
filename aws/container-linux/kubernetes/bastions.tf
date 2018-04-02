@@ -1,9 +1,11 @@
-module "bastion" {
-  source         = "bastion"
-  name           = "bastion"
+module "bastions" {
+  source         = "bastions"
+  name           = "bastions"
   vpc_id         = "${var.vpc_id}"
   cluster_name   = "${var.cluster_name}"
   public_subnets = "${aws_subnet.public.*.id}"
+
+  security_groups = ["${aws_security_group.bastion.id}"]
 
   #user_data = "${element(data.ct_config.controller_ign.*.rendered, count.index)}"
 

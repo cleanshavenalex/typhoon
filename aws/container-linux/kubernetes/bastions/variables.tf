@@ -42,3 +42,8 @@ variable "public_subnets" {
   type        = "list"
   description = "List of public subnets"
 }
+
+variable "security_groups" {
+  type        = "list"
+  description = "List of security groups"
+}
