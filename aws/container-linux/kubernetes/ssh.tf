@@ -98,20 +98,16 @@ resource "null_resource" "bootkube-start" {
       "chmod 400 $HOME/${var.ssh_key}.pem",
       "ssh-keyscan -H ${aws_instance.controllers.0.private_ip} >> $HOME/.ssh/known_hosts && ssh -i ${var.ssh_key}.pem -t core@${aws_instance.controllers.0.private_ip} sudo mkdir -p /etc/ssl/etcd/etcd",
       "ssh-keyscan -H ${aws_instance.controllers.0.private_ip} >> $HOME/.ssh/known_hosts && sudo scp -i ${var.ssh_key}.pem $HOME/assets core@${aws_instance.controllers.0.private_ip}:/opt/assets",
+      "sudo scp -i ${var.ssh_key}.pem $HOME/etcd-client-ca.crt core@${aws_instance.controllers.0.private_ip}:/etc/ssl/etcd/etcd-client-ca.crt ",
+      "ssh -i ${var.ssh_key}.pem -t core@${aws_instance.controllers.0.private_ip} sudo cp /etc/ssl/etcd/etcd-client-ca.crt /etc/ssl/etcd/etcd/server-ca.crt",
+      "sudo scp -i ${var.ssh_key}.pem $HOME/etcd-server.crt core@${aws_instance.controllers.0.private_ip}:/etc/ssl/etcd/etcd/server.crt",
+      "sudo scp ${var.ssh_key}.pem $HOME/etcd-server.key core@${aws_instance.controllers.0.private_ip}:/etc/ssl/etcd/etcd/server.key",
+      "ssh -i ${var.ssh_key}.pem -t core@${aws_instance.controllers.0.private_ip} sudo cp /etc/ssl/etcd/etcd-client-ca.crt /etc/ssl/etcd/etcd/peer-ca.crt",
+      "sudo scp -i ${var.ssh_key}.pem $HOME/etcd-peer.crt core@${aws_instance.controllers.0.private_ip}:/etc/ssl/etcd/etcd/peer.crt",
+      "sudo scp -i ${var.ssh_key}.pem $HOME/etcd-peer.key core@${aws_instance.controllers.0.private_ip}:/etc/ssl/etcd/etcd/peer.key",
+      "ssh -i ${var.ssh_key}.pem -t core@${aws_instance.controllers.0.private_ip} sudo chown -R etcd:etcd /etc/ssl/etcd",
+      "ssh -i ${var.ssh_key}.pem -t core@${aws_instance.controllers.0.private_ip} sudo chmod -R 500 /etc/ssl/etcd",
+      "ssh -i ${var.ssh_key}.pem -t core@${aws_instance.controllers.0.private_ip} sudo systemctl start bootkube",
     ]
-
-    # "chmod 400 $HOME/${var.ssh_key}.pem",
-    # "ssh-keyscan -H ${aws_instance.controllers.0.private_ip} >> $HOME/.ssh/known_hosts && sudo scp -i ${var.ssh_key}.pem $HOME/assets core@${aws_instance.controllers.0.private_ip}:/opt/assets",
-
-    # "sudo scp -i ${var.ssh_key}.pem $HOME/etcd-client-ca.crt core@${aws_instance.controllers.0.private_ip}:/etc/ssl/etcd/etcd-client-ca.crt ",
-    # "ssh -i ${var.ssh_key}.pem -t core@${aws_instance.controllers.0.private_ip} sudo cp /etc/ssl/etcd/etcd-client-ca.crt /etc/ssl/etcd/etcd/server-ca.crt",
-    # "sudo scp -i ${var.ssh_key}.pem $HOME/etcd-server.crt core@${aws_instance.controllers.0.private_ip}:/etc/ssl/etcd/etcd/server.crt",
-    # "sudo scp ${var.ssh_key}.pem $HOME/etcd-server.key core@${aws_instance.controllers.0.private_ip}:/etc/ssl/etcd/etcd/server.key",
-    # "ssh -i ${var.ssh_key}.pem -t core@${aws_instance.controllers.0.private_ip} sudo cp /etc/ssl/etcd/etcd-client-ca.crt /etc/ssl/etcd/etcd/peer-ca.crt",
-    # "sudo scp -i ${var.ssh_key}.pem $HOME/etcd-peer.crt core@${aws_instance.controllers.0.private_ip}:/etc/ssl/etcd/etcd/peer.crt",
-    # "sudo scp -i ${var.ssh_key}.pem $HOME/etcd-peer.key core@${aws_instance.controllers.0.private_ip}:/etc/ssl/etcd/etcd/peer.key",
-    # "ssh -i ${var.ssh_key}.pem -t core@${aws_instance.controllers.0.private_ip} sudo chown -R etcd:etcd /etc/ssl/etcd",
-    # "ssh -i ${var.ssh_key}.pem -t core@${aws_instance.controllers.0.private_ip} sudo chmod -R 500 /etc/ssl/etcd",
-    # "ssh -i ${var.ssh_key}.pem -t core@${aws_instance.controllers.0.private_ip} sudo systemctl start bootkube",
   }
 }
