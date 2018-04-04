@@ -54,6 +54,9 @@ systemd:
           --volume=resolv,kind=host,source=/etc/resolv.conf \
           --mount volume=resolv,target=/etc/resolv.conf \
           --volume var-lib-cni,kind=host,source=/var/lib/cni \
+          --mount volume=var-lib-cni,target=/var/lib/cni \
+          --volume opt-cni-bin,kind=host,source=/opt/cni/bin \
+          --mount volume=opt-cni-bin,target=/opt/cni/bin \
           --volume var-log,kind=host,source=/var/log \
           --mount volume=var-log,target=/var/log \
           --insecure-options=image"
@@ -72,9 +75,10 @@ systemd:
           --client-ca-file=/etc/kubernetes/ca.crt \
           --cluster_dns=${k8s_dns_service_ip} \
           --cluster_domain=${cluster_domain_suffix} \
+          --cni-conf-dir=/etc/kubernetes/cni/net.d \
           --exit-on-lock-contention \
           --kubeconfig=/etc/kubernetes/kubeconfig \
-          --lock-file=/var/run/lock/kubelet.lock \       
+          --lock-file=/var/run/lock/kubelet.lock \
           --node-labels=node-role.kubernetes.io/master \
           --node-labels=node-role.kubernetes.io/controller="true" \
           --pod-manifest-path=/etc/kubernetes/manifests \
@@ -146,3 +150,4 @@ storage:
             --net=host \
             --dns=host \
             --exec=/bootkube -- start --asset-dir=/assets "$@"
+

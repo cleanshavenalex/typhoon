@@ -10,6 +10,11 @@ variable "vpc_id" {
   description = "ID of the AWS VPC"
 }
 
+variable "route_table_id" {
+  type        = "string"
+  description = "ID of the route table for the existing VPC."
+}
+
 variable "internet_gateway" {
   type        = "string"
   description = "ID of the internet gateway in the pre-existing VPC"

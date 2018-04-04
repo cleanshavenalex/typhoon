@@ -18,9 +18,9 @@
 #   assign_ipv6_address_on_creation = false
 #   tags                            = "${map("Name", "${var.cluster_name}-public-${count.index}")}"
 # }
-# resource "aws_route_table_association" "public" {
+# resource "aws_route_table_association" "masters" {
 #   count          = "${length(var.master_azs)}"
-#   route_table_id = "${aws_route_table.default.id}"
-#   subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
+#   route_table_id = "${var.route_table_id}"
+#   subnet_id      = "${element(var.master_subnets, count.index)}"
 # }
 
