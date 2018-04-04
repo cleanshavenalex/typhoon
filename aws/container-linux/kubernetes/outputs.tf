@@ -3,10 +3,10 @@ output "ingress_dns_name" {
   description = "DNS name of the network load balancer for distributing traffic to Ingress controllers"
 }
 
-output "bastion_ip" {
-  value       = "${module.bastions.bastion_ip}"
-  description = "IP of the bastion host"
-}
+# output "bastion_ip" {
+#   value       = "${module.bastions.bastion_ip}"
+#   description = "IP of the bastion host"
+# }
 
 # Outputs for worker pools
 
@@ -35,10 +35,10 @@ output "subnet_ids" {
   description = "List of subnet IDs for creating worker instances"
 }
 
-output "public_subnets" {
-  value       = ["${aws_subnet.public.*.id}"]
-  description = "List of public subnets for bastion boxes"
-}
+# output "public_subnets" {
+#   value       = ["${aws_subnet.public.*.id}"]
+#   description = "List of public subnets for bastion boxes"
+# }
 
 output "worker_security_groups" {
   value       = ["${aws_security_group.worker.id}"]
@@ -50,10 +50,10 @@ output "security_groups" {
   description = "List of worker security group IDs"
 }
 
-output "bastion_security_groups" {
-  value       = ["${aws_security_group.bastion.id}"]
-  description = "List of bastion security group IDs"
-}
+# output "bastion_security_groups" {
+#   value       = ["${aws_security_group.bastion.id}"]
+#   description = "List of bastion security group IDs"
+# }
 
 output "kubeconfig" {
   value = "${module.bootkube.kubeconfig}"

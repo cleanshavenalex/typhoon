@@ -2,6 +2,42 @@
 
 # Controller security group
 
+resource "aws_security_group_rule" "vpn-ssh-to-controllers" {
+  security_group_id        = "${aws_security_group.controller.id}"
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 22
+  to_port                  = 22
+  source_security_group_id = "${var.vpn_security_group}"
+}
+
+resource "aws_security_group_rule" "vpn-443-to-controllers" {
+  security_group_id        = "${aws_security_group.controller.id}"
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 443
+  to_port                  = 443
+  source_security_group_id = "${var.vpn_security_group}"
+}
+
+resource "aws_security_group_rule" "vpn-ssh-to-workers" {
+  security_group_id        = "${aws_security_group.worker.id}"
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 22
+  to_port                  = 22
+  source_security_group_id = "${var.vpn_security_group}"
+}
+
+resource "aws_security_group_rule" "vpn-443-to-workers" {
+  security_group_id        = "${aws_security_group.worker.id}"
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 443
+  to_port                  = 443
+  source_security_group_id = "${var.vpn_security_group}"
+}
+
 resource "aws_security_group" "controller" {
   name        = "${var.cluster_name}-controller"
   description = "${var.cluster_name} controller security group"

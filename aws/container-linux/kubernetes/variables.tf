@@ -15,6 +15,11 @@ variable "internet_gateway" {
   description = "ID of the internet gateway in the pre-existing VPC"
 }
 
+variable "vpn_security_group" {
+  type        = "string"
+  description = "Security Group ID of the VPN."
+}
+
 variable "dns_zone" {
   type        = "string"
   description = "AWS Route53 DNS Zone (e.g. aws.example.com)"
@@ -108,7 +113,7 @@ variable "host_cidr" {
 variable "public_subnet_cidr" {
   type        = "string"
   description = "CIDR for the public subnet. Used by the Bastion host"
-  default     = "10.2.0.0/24"
+  default     = "10.2.0.0/16"
 }
 
 variable "pod_cidr" {
