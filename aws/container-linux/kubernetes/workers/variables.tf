@@ -15,6 +15,11 @@ variable "subnet_ids" {
   description = "Must be set to `subnet_ids` output by cluster"
 }
 
+variable "worker_subnets" {
+  type        = "list"
+  description = "List of subnet ids to put worker nodes in"
+}
+
 variable "security_groups" {
   type        = "list"
   description = "Must be set to `worker_security_groups` output by cluster"
@@ -59,9 +64,9 @@ variable "kubeconfig" {
   description = "Must be set to `kubeconfig` output by cluster"
 }
 
-variable "ssh_authorized_key" {
+variable "ssh_key" {
   type        = "string"
-  description = "SSH public key for user 'core'"
+  description = "Name of the key pair to use for worker instances"
 }
 
 variable "service_cidr" {

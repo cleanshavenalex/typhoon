@@ -1,12 +1,16 @@
 # Secure copy etcd TLS assets to controllers.
 resource "null_resource" "copy-controller-secrets" {
-  count = "${var.controller_count}"
-
   connection {
-    type    = "ssh"
-    host    = "${element(aws_instance.controllers.*.public_ip, count.index)}"
-    user    = "core"
-    timeout = "15m"
+    type        = "ssh"
+    host        = "${element(aws_instance.controllers.*.private_ip, count.index)}"
+    user        = "core"
+    private_key = "${file(var.bastion_pem_path)}"
+    timeout     = "10m"
+  }
+
+  # Changes to any instance of the cluster requires re-provisioning
+  triggers {
+    cluster_instance_ids = "${join(",", aws_instance.controllers.*.id)}"
   }
 
   provisioner "file" {
@@ -60,7 +64,7 @@ resource "null_resource" "copy-controller-secrets" {
   }
 }
 
-# Secure copy bootkube assets to ONE controller and start bootkube to perform
+# Secure copy bootkube assets to the bastion and start bootkube to perform
 # one-time self-hosted cluster bootstrapping.
 resource "null_resource" "bootkube-start" {
   depends_on = [
@@ -71,10 +75,11 @@ resource "null_resource" "bootkube-start" {
   ]
 
   connection {
-    type    = "ssh"
-    host    = "${aws_instance.controllers.0.public_ip}"
-    user    = "core"
-    timeout = "15m"
+    type        = "ssh"
+    private_key = "${file(var.bastion_pem_path)}"
+    host        = "${aws_instance.controllers.0.private_ip}"
+    user        = "core"
+    timeout     = "15m"
   }
 
   provisioner "file" {

@@ -2,9 +2,9 @@
 resource "aws_lb" "ingress" {
   name               = "${var.name}-ingress"
   load_balancer_type = "network"
-  internal           = false
+  internal           = true
 
-  subnets = ["${var.subnet_ids}"]
+  subnets = ["${var.worker_subnets}"]
 
   enable_cross_zone_load_balancing = true
 }
