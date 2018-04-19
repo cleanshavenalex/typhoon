@@ -1,3 +1,4 @@
+
 ---
 systemd:
   units:
@@ -39,8 +40,6 @@ systemd:
         ExecStartPre=/bin/mkdir -p /opt/cni/bin
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/cni/net.d
-        ExecStartPre=/bin/mkdir -p /etc/kubernetes/checkpoint-secrets
-        ExecStartPre=/bin/mkdir -p /etc/kubernetes/inactive-manifests
         ExecStartPre=/bin/mkdir -p /var/lib/cni
         ExecStartPre=/bin/mkdir -p /var/lib/kubelet/volumeplugins
         ExecStartPre=/usr/bin/bash -c "grep 'certificate-authority-data' /etc/kubernetes/kubeconfig | awk '{print $2}' | base64 -d > /etc/kubernetes/ca.crt"
@@ -55,6 +54,7 @@ systemd:
           --exit-on-lock-contention \
           --kubeconfig=/etc/kubernetes/kubeconfig \
           --lock-file=/var/run/lock/kubelet.lock \
+          --network-plugin=cni \
           --node-labels=node-role.kubernetes.io/node \
           --pod-manifest-path=/etc/kubernetes/manifests \
           --volume-plugin-dir=/var/lib/kubelet/volumeplugins
@@ -88,8 +88,8 @@ storage:
       mode: 0644
       contents:
         inline: |
-          KUBELET_IMAGE_URL=docker://gcr.io/google_containers/hyperkube
-          KUBELET_IMAGE_TAG=v1.9.6
+          KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
+          KUBELET_IMAGE_TAG=v1.10.1
     - path: /etc/sysctl.d/max-user-watches.conf
       filesystem: root
       contents:
@@ -107,9 +107,7 @@ storage:
             --volume config,kind=host,source=/etc/kubernetes \
             --mount volume=config,target=/etc/kubernetes \
             --insecure-options=image \
-            docker://gcr.io/google_containers/hyperkube:v1.9.6 \
+            docker://k8s.gcr.io/hyperkube:v1.10.1 \
             --net=host \
             --dns=host \
             --exec=/kubectl -- --kubeconfig=/etc/kubernetes/kubeconfig delete node $(hostname)
-
-     
