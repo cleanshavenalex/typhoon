@@ -7,7 +7,7 @@ resource "aws_route53_record" "etcds" {
 
   name = "${format("%s-etcd%d.%s.", var.cluster_name, count.index, var.dns_zone)}"
   type = "A"
-  ttl  = 300
+  ttl  = 60
 
   # private IPv4 address for etcd
   records = ["${element(aws_instance.controllers.*.private_ip, count.index)}"]

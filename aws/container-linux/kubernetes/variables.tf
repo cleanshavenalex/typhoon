@@ -35,6 +35,11 @@ variable "dns_zone_id" {
   description = "AWS Route53 DNS Zone ID (e.g. Z3PAABBCFAKEC0)"
 }
 
+variable "elb_ssl_certificate_id" {
+  type        = "string"
+  description = "ID of the security certificate associated with the load balancer"
+}
+
 # instances
 
 variable "controller_count" {

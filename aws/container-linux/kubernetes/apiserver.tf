@@ -7,66 +7,99 @@ resource "aws_route53_record" "apiserver" {
 
   # AWS recommends their special "alias" records for ELBs
   alias {
-    name                   = "${aws_lb.apiserver.dns_name}"
-    zone_id                = "${aws_lb.apiserver.zone_id}"
+    name                   = "${aws_elb.apiserver.dns_name}"
+    zone_id                = "${aws_elb.apiserver.zone_id}"
     evaluate_target_health = true
   }
 }
 
-# Network Load Balancer for apiservers
-resource "aws_lb" "apiserver" {
-  name               = "${var.cluster_name}-apiserver"
-  load_balancer_type = "network"
-  internal           = true
+# ELB
+resource "aws_elb" "apiserver" {
+  name     = "${var.cluster_name}-apiserver"
+  internal = true
 
-  subnets = ["${var.master_subnets}"]
+  # count              = "${var.controller_count}"
+  security_groups = ["${aws_security_group.controller.id}"]
+  subnets         = ["${var.master_subnets}"]
 
-  enable_cross_zone_load_balancing = true
+  listener {
+    instance_port      = 443
+    instance_protocol  = "https"
+    lb_port            = 443
+    lb_protocol        = "https"
+    ssl_certificate_id = "${var.elb_ssl_certificate_id}"
+  }
+
+  instances                 = ["${aws_instance.controllers.*.id}"]
+  cross_zone_load_balancing = true
 }
+
+# Network Load Balancer for apiservers
+# resource "aws_lb" "apiserver" {
+#   name               = "${var.cluster_name}-apiserver"
+#   load_balancer_type = "network"
+#   internal           = true
+
+
+#   subnets = ["${var.master_subnets}"]
+
+
+#   enable_cross_zone_load_balancing = true
+# }
+
 
 # Forward HTTP traffic to controllers
-resource "aws_lb_listener" "apiserver-https" {
-  load_balancer_arn = "${aws_lb.apiserver.arn}"
-  protocol          = "TCP"
-  port              = "443"
+# resource "aws_lb_listener" "apiserver-https" {
+#   load_balancer_arn = "${aws_lb.apiserver.arn}"
+#   protocol          = "TCP"
+#   port              = "443"
 
-  default_action {
-    type             = "forward"
-    target_group_arn = "${aws_lb_target_group.controllers.arn}"
-  }
-}
+
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = "${aws_lb_target_group.controllers.arn}"
+#   }
+# }
+
 
 # Target group of controllers
-resource "aws_lb_target_group" "controllers" {
-  name        = "${var.cluster_name}-controllers"
-  vpc_id      = "${var.vpc_id}"
-  target_type = "instance"
+# resource "aws_lb_target_group" "controllers" {
+#   name        = "${var.cluster_name}-controllers"
+#   vpc_id      = "${var.vpc_id}"
+#   target_type = "instance"
 
-  protocol = "TCP"
-  port     = 443
 
-  # Kubelet HTTP health check
-  health_check {
-    protocol = "TCP"
-    port     = 443
+#   protocol = "TCP"
+#   port     = 443
 
-    # NLBs required to use same healthy and unhealthy thresholds
-    healthy_threshold   = 3
-    unhealthy_threshold = 3
 
-    # Interval between health checks required to be 10 or 30
-    interval = 10
-  }
-}
+#   # Kubelet HTTP health check
+#   health_check {
+#     protocol = "TCP"
+#     port     = 443
 
-# Attach controller instances to apiserver NLB
-resource "aws_lb_target_group_attachment" "controllers" {
-  count = "${var.controller_count}"
 
-  target_group_arn = "${aws_lb_target_group.controllers.arn}"
-  target_id        = "${element(aws_instance.controllers.*.id, count.index)}"
-  port             = 443
-}
+#     # NLBs required to use same healthy and unhealthy thresholds
+#     healthy_threshold   = 3
+#     unhealthy_threshold = 3
+
+
+#     # Interval between health checks required to be 10 or 30
+#     interval = 10
+#   }
+# }
+
+
+# # Attach controller instances to apiserver NLB
+# resource "aws_lb_target_group_attachment" "controllers" {
+#   count = "${var.controller_count}"
+
+
+#   target_group_arn = "${aws_lb_target_group.controllers.arn}"
+#   target_id        = "${element(aws_instance.controllers.*.id, count.index)}"
+#   port             = 443
+# }
+
 
 # resource "aws_iam_instance_profile" "master_profile" {
 #   name = "${var.cluster_name}-master-profile"

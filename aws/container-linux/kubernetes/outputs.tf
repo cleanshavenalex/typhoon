@@ -25,6 +25,10 @@ output "master_subnets" {
   description = "List of master subnet ids"
 }
 
+output "controller_security_groups" {
+  value = ["${aws_security_group.controller.id}"]
+}
+
 output "worker_subnets" {
   value       = ["${var.worker_subnets}"]
   description = "List of subnet IDs for creating worker instances"
