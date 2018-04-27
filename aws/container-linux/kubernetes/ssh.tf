@@ -14,6 +14,11 @@ resource "null_resource" "copy-controller-secrets" {
   }
 
   provisioner "file" {
+    content     = "${file("${var.ssl_cert_file}")}"
+    destination = "$HOME/ca.crt"
+  }
+
+  provisioner "file" {
     content     = "${module.bootkube.etcd_ca_cert}"
     destination = "$HOME/etcd-client-ca.crt"
   }
@@ -50,6 +55,7 @@ resource "null_resource" "copy-controller-secrets" {
 
   provisioner "remote-exec" {
     inline = [
+      "sudo mv ca.crt /etc/kubernetes/ca.crt",
       "sudo mkdir -p /etc/ssl/etcd/etcd",
       "sudo mv etcd-client* /etc/ssl/etcd/",
       "sudo cp /etc/ssl/etcd/etcd-client-ca.crt /etc/ssl/etcd/etcd/server-ca.crt",

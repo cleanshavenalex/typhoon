@@ -57,8 +57,8 @@ data "template_file" "controller_config" {
     # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...
     etcd_initial_cluster = "${join(",", formatlist("%s=https://%s:2380", null_resource.repeat.*.triggers.name, null_resource.repeat.*.triggers.domain))}"
 
-    kubeconfig            = "${indent(10, module.bootkube.kubeconfig)}"
-    ca_cert               = "${file(var.ssl_cert_file)}"
+    kubeconfig = "${indent(10, module.bootkube.kubeconfig)}"
+
     key_name              = "${var.ssh_key}"
     k8s_dns_service_ip    = "${cidrhost(var.service_cidr, 10)}"
     cluster_domain_suffix = "${var.cluster_domain_suffix}"
