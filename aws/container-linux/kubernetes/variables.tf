@@ -40,6 +40,11 @@ variable "elb_ssl_certificate_id" {
   description = "ID of the security certificate associated with the load balancer"
 }
 
+variable "ssl_cert_file" {
+  type        = "string"
+  description = "Local path to the folder where the cert, fullchain, chain, and privkey are for the cluster domain"
+}
+
 # instances
 
 variable "controller_count" {
