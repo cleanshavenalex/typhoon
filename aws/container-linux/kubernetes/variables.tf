@@ -53,22 +53,34 @@ variable "controller_count" {
   description = "Number of controllers (i.e. masters)"
 }
 
-variable "worker_count" {
-  type        = "string"
-  default     = "1"
-  description = "Number of workers"
-}
-
 variable "controller_type" {
   type        = "string"
   default     = "t2.small"
   description = "EC2 instance type for controllers"
 }
 
+variable "worker_count" {
+  type        = "string"
+  default     = "1"
+  description = "Number of workers"
+}
+
 variable "worker_type" {
   type        = "string"
   default     = "t2.small"
   description = "EC2 instance type for workers"
+}
+
+variable "etcd_count" {
+  type        = "string"
+  default     = "1"
+  description = "Number of etcd nodes"
+}
+
+variable "etcd_type" {
+  type        = "string"
+  default     = "1"
+  description = "EC2 instance type for etcd"
 }
 
 variable "os_channel" {
@@ -81,6 +93,12 @@ variable "disk_size" {
   type        = "string"
   default     = "40"
   description = "Size of the EBS volume in GB"
+}
+
+variable "master_volume_size" {
+  type        = "string"
+  default     = 64
+  description = "RAM for each master node"
 }
 
 variable "controller_clc_snippets" {

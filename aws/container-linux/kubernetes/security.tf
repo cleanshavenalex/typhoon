@@ -3,12 +3,21 @@
 # Controller security group
 
 resource "aws_security_group_rule" "vpn-ssh-to-controllers" {
-  security_group_id        = "${aws_security_group.controller.id}"
-  type                     = "ingress"
-  protocol                 = "tcp"
-  from_port                = 22
-  to_port                  = 22
-  source_security_group_id = "${var.vpn_security_group}"
+  security_group_id = "${aws_security_group.controller.id}"
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 22
+  to_port           = 22
+  cidr_blocks       = ["${var.host_cidr}"]
+}
+
+resource "aws_security_group_rule" "vpn-ssh-to-etcd" {
+  security_group_id = "${aws_security_group.etcd.id}"
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 22
+  to_port           = 22
+  cidr_blocks       = ["${var.host_cidr}"]
 }
 
 resource "aws_security_group_rule" "vpn-443-to-controllers" {
@@ -57,15 +66,15 @@ resource "aws_security_group_rule" "controller-icmp" {
   cidr_blocks = ["0.0.0.0/0"]
 }
 
-resource "aws_security_group_rule" "controller-ssh" {
-  security_group_id = "${aws_security_group.controller.id}"
+# resource "aws_security_group_rule" "controller-ssh" {
+#   security_group_id = "${aws_security_group.controller.id}"
 
-  type        = "ingress"
-  protocol    = "tcp"
-  from_port   = 22
-  to_port     = 22
-  cidr_blocks = ["0.0.0.0/0"]
-}
+#   type        = "ingress"
+#   protocol    = "tcp"
+#   from_port   = 22
+#   to_port     = 22
+#   cidr_blocks = ["0.0.0.0/0"]
+# }
 
 resource "aws_security_group_rule" "controller-apiserver" {
   security_group_id = "${aws_security_group.controller.id}"
@@ -124,6 +133,16 @@ resource "aws_security_group_rule" "controller-kubelet-self" {
   protocol  = "tcp"
   from_port = 10250
   to_port   = 10250
+  self      = true
+}
+
+resource "aws_security_group_rule" "controller-kubelet-self-2" {
+  security_group_id = "${aws_security_group.controller.id}"
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 10251
+  to_port   = 10251
   self      = true
 }
 
@@ -218,6 +237,83 @@ resource "aws_security_group_rule" "controller-egress" {
   ipv6_cidr_blocks = ["::/0"]
 }
 
+resource "aws_security_group" "etcd" {
+  count  = 1
+  vpc_id = "${var.vpc_id}"
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    self        = true
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol    = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+  }
+
+  ingress {
+    protocol  = "tcp"
+    from_port = 22
+    to_port   = 22
+
+    security_groups = ["${aws_security_group.controller.id}", "${aws_security_group.worker.id}"]
+  }
+
+  ingress {
+    protocol  = "tcp"
+    from_port = 2379
+    to_port   = 2380
+
+    security_groups = ["${aws_security_group.controller.id}", "${aws_security_group.worker.id}"]
+  }
+
+  ingress {
+    protocol  = "tcp"
+    from_port = 2380
+    to_port   = 2380
+    self      = true
+  }
+
+  ingress {
+    protocol  = "tcp"
+    from_port = 2379
+    to_port   = 2380
+    self      = true
+  }
+}
+
+resource "aws_security_group_rule" "etcd-ssh" {
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 22
+  to_port                  = 22
+  source_security_group_id = "${var.vpn_security_group}"
+  security_group_id        = "${aws_security_group.etcd.id}"
+}
+
+resource "aws_security_group_rule" "etcd-2379" {
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 2379
+  to_port                  = 2379
+  source_security_group_id = "${aws_security_group.controller.id}"
+  security_group_id        = "${aws_security_group.etcd.id}"
+}
+
+resource "aws_security_group_rule" "etcd-worker-2379" {
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 2379
+  to_port                  = 2379
+  source_security_group_id = "${aws_security_group.worker.id}"
+  security_group_id        = "${aws_security_group.etcd.id}"
+}
+
 # Bastion security group
 resource "aws_security_group" "bastion" {
   name        = "${var.cluster_name}-bastion"
@@ -277,7 +373,7 @@ resource "aws_security_group_rule" "worker-ssh" {
   protocol    = "tcp"
   from_port   = 22
   to_port     = 22
-  cidr_blocks = ["0.0.0.0/0"]
+  cidr_blocks = ["${var.host_cidr}"]
 }
 
 resource "aws_security_group_rule" "worker-http" {
@@ -287,7 +383,7 @@ resource "aws_security_group_rule" "worker-http" {
   protocol    = "tcp"
   from_port   = 80
   to_port     = 80
-  cidr_blocks = ["0.0.0.0/0"]
+  cidr_blocks = ["${var.host_cidr}"]
 }
 
 resource "aws_security_group_rule" "worker-https" {

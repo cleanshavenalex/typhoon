@@ -1,10 +1,10 @@
 # Self-hosted Kubernetes assets (kubeconfig, manifests)
 module "bootkube" {
-  source = "git::https://github.com/poseidon/terraform-render-bootkube.git?ref=db36b92abced3c4b0af279adfd5ed4bf0cf8c39f"
+  source = "git::https://github.com/poseidon/terraform-render-bootkube.git?ref=6ec5e3c3af34346e5563d2434481effc780a288c"
 
   cluster_name          = "${var.cluster_name}"
   api_servers           = ["${format("%s.%s", var.cluster_name, var.dns_zone)}"]
-  etcd_servers          = ["${aws_route53_record.etcds.*.fqdn}"]
+  etcd_servers          = ["${aws_route53_record.etc_a_nodes.*.fqdn}"]
   asset_dir             = "${var.asset_dir}"
   networking            = "${var.networking}"
   network_mtu           = "${var.network_mtu}"

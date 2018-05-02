@@ -20,14 +20,15 @@ resource "aws_elb" "apiserver" {
 
   # count              = "${var.controller_count}"
   security_groups = ["${aws_security_group.controller.id}"]
-  subnets         = ["${var.master_subnets}"]
+  subnets         = ["${var.master_subnets}", "${var.master_subnets[1]}"]
 
   listener {
-    instance_port      = 443
-    instance_protocol  = "https"
-    lb_port            = 443
-    lb_protocol        = "https"
-    ssl_certificate_id = "${var.elb_ssl_certificate_id}"
+    instance_port     = 443
+    instance_protocol = "tcp"
+    lb_port           = 443
+    lb_protocol       = "tcp"
+
+    #ssl_certificate_id = "${var.elb_ssl_certificate_id}"
   }
 
   instances                 = ["${aws_instance.controllers.*.id}"]

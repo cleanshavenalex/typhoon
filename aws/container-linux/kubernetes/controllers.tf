@@ -1,17 +1,17 @@
 # Discrete DNS records for each controller's private IPv4 for etcd usage
-resource "aws_route53_record" "etcds" {
-  count = "${var.controller_count}"
+# resource "aws_route53_record" "etcds" {
+#   count = "${var.controller_count}"
 
-  # DNS Zone where record should be created
-  zone_id = "${var.dns_zone_id}"
+#   # DNS Zone where record should be created
+#   zone_id = "${var.dns_zone_id}"
 
-  name = "${format("%s-etcd%d.%s.", var.cluster_name, count.index, var.dns_zone)}"
-  type = "A"
-  ttl  = 60
+#   name = "${format("%s-etcd%d.%s.", var.cluster_name, count.index, var.dns_zone)}"
+#   type = "A"
+#   ttl  = 60
 
-  # private IPv4 address for etcd
-  records = ["${element(aws_instance.controllers.*.private_ip, count.index)}"]
-}
+#   # private IPv4 address for etcd
+#   records = ["${element(aws_instance.controllers.*.private_ip, count.index)}"]
+# }
 
 # Controller instances
 resource "aws_instance" "controllers" {
@@ -28,14 +28,15 @@ resource "aws_instance" "controllers" {
 
   # storage
   root_block_device {
-    volume_type = "standard"
-    volume_size = "${var.disk_size}"
+    volume_type = "io1"
+    iops        = "500"
+    volume_size = "${var.master_volume_size}"
   }
 
   # network
   associate_public_ip_address = false
 
-  subnet_id              = "${var.master_subnets[0]}"
+  subnet_id              = "${var.master_subnets[count.index]}"
   vpc_security_group_ids = ["${aws_security_group.controller.id}"]
 
   lifecycle {
@@ -50,13 +51,6 @@ data "template_file" "controller_config" {
   template = "${file("${path.module}/cl/controller.yaml.tmpl")}"
 
   vars = {
-    # Cannot use cyclic dependencies on controllers or their DNS records
-    etcd_name   = "etcd${count.index}"
-    etcd_domain = "${var.cluster_name}-etcd${count.index}.${var.dns_zone}"
-
-    # etcd0=https://cluster-etcd0.example.com,etcd1=https://cluster-etcd1.example.com,...
-    etcd_initial_cluster = "${join(",", formatlist("%s=https://%s:2380", null_resource.repeat.*.triggers.name, null_resource.repeat.*.triggers.domain))}"
-
     kubeconfig = "${indent(10, module.bootkube.kubeconfig)}"
 
     key_name              = "${var.ssh_key}"

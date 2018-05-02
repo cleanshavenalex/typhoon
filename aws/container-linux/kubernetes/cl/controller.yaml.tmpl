@@ -1,30 +1,6 @@
 ---
 systemd:
   units:
-    - name: etcd-member.service
-      enable: true
-      dropins:
-        - name: 40-etcd-cluster.conf
-          contents: |
-            [Service]
-            Environment="ETCD_IMAGE_TAG=v3.3.3"
-            Environment="ETCD_NAME=${etcd_name}"
-            Environment="ETCD_ADVERTISE_CLIENT_URLS=https://${etcd_domain}:2379"
-            Environment="ETCD_INITIAL_ADVERTISE_PEER_URLS=https://${etcd_domain}:2380"
-            Environment="ETCD_LISTEN_CLIENT_URLS=https://0.0.0.0:2379"
-            Environment="ETCD_LISTEN_PEER_URLS=https://0.0.0.0:2380"
-            Environment="ETCD_LISTEN_METRICS_URLS=http://0.0.0.0:2381"
-            Environment="ETCD_INITIAL_CLUSTER=${etcd_initial_cluster}"
-            Environment="ETCD_STRICT_RECONFIG_CHECK=true"
-            Environment="ETCD_SSL_DIR=/etc/ssl/etcd"
-            Environment="ETCD_TRUSTED_CA_FILE=/etc/ssl/certs/etcd/server-ca.crt"
-            Environment="ETCD_CERT_FILE=/etc/ssl/certs/etcd/server.crt"
-            Environment="ETCD_KEY_FILE=/etc/ssl/certs/etcd/server.key"
-            Environment="ETCD_CLIENT_CERT_AUTH=true"
-            Environment="ETCD_PEER_TRUSTED_CA_FILE=/etc/ssl/certs/etcd/peer-ca.crt"
-            Environment="ETCD_PEER_CERT_FILE=/etc/ssl/certs/etcd/peer.crt"
-            Environment="ETCD_PEER_KEY_FILE=/etc/ssl/certs/etcd/peer.key"
-            Environment="ETCD_PEER_CLIENT_CERT_AUTH=true"
     - name: docker.service
       enable: true
     - name: locksmithd.service
@@ -42,7 +18,6 @@ systemd:
         ExecStart=/bin/sh -c 'while ! /usr/bin/grep '^[^#[:space:]]' /etc/resolv.conf > /dev/null; do sleep 1; done'
         [Install]
         RequiredBy=kubelet.service
-        RequiredBy=etcd-member.service
     - name: kubelet.service
       enable: true
       contents: |
@@ -52,10 +27,12 @@ systemd:
         [Service]
         EnvironmentFile=/etc/kubernetes/kubelet.env
         Environment="RKT_RUN_ARGS=--uuid-file-save=/var/cache/kubelet-pod.uuid \
-          --volume=resolv,kind=host,source=/etc/resolv.conf \
+          --volume resolv,kind=host,source=/etc/resolv.conf \
           --mount volume=resolv,target=/etc/resolv.conf \
           --volume var-lib-cni,kind=host,source=/var/lib/cni \
           --mount volume=var-lib-cni,target=/var/lib/cni \
+          --volume var-lib-calico,kind=host,source=/var/lib/calico \
+          --mount volume=var-lib-calico,target=/var/lib/calico \
           --volume opt-cni-bin,kind=host,source=/opt/cni/bin \
           --mount volume=opt-cni-bin,target=/opt/cni/bin \
           --volume var-log,kind=host,source=/var/log \
@@ -63,11 +40,14 @@ systemd:
           --insecure-options=image"
         ExecStartPre=/bin/mkdir -p /opt/cni/bin
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
+        ExecStartPre=/bin/mkdir -p /etc/kubernetes/secrets
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/cni/net.d
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/checkpoint-secrets
         ExecStartPre=/bin/mkdir -p /etc/kubernetes/inactive-manifests
         ExecStartPre=/bin/mkdir -p /var/lib/cni
+        ExecStartPre=/bin/mkdir -p /var/lib/calico
         ExecStartPre=/bin/mkdir -p /var/lib/kubelet/volumeplugins
+        ExecStartPre=/usr/bin/bash -c "grep 'certificate-authority-data' /etc/kubernetes/kubeconfig | awk '{print $2}' | base64 -d > /etc/kubernetes/ca.crt"
         ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/cache/kubelet-pod.uuid
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged \
@@ -83,7 +63,7 @@ systemd:
           --node-labels=node-role.kubernetes.io/controller="true" \
           --pod-manifest-path=/etc/kubernetes/manifests \
           --register-with-taints=node-role.kubernetes.io/master=:NoSchedule \
-          --volume-plugin-dir=/var/lib/kubelet/volumeplugins
+          --volume-plugin-dir=/var/lib/kubelet/volumeplugins 
         ExecStop=-/usr/bin/rkt stop --uuid-file=/var/cache/kubelet-pod.uuid
         Restart=always
         RestartSec=10

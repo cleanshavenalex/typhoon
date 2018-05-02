@@ -15,17 +15,16 @@ resource "aws_autoscaling_group" "workers" {
   # template
   launch_configuration = "${aws_launch_configuration.worker.name}"
 
-  # target groups to which instances should be added
-  target_group_arns = [
-    "${aws_lb_target_group.workers-http.id}",
-    "${aws_lb_target_group.workers-https.id}",
-  ]
+  # # target groups to which instances should be added
+  # target_group_arns = [
+  #   "${aws_lb_target_group.workers-http.id}",
+  #   "${aws_lb_target_group.workers-https.id}",
+  # ]
 
   lifecycle {
     # override the default destroy and replace update behavior
     create_before_destroy = true
   }
-
   tags = [{
     key                 = "Name"
     value               = "${var.name}-worker"
@@ -39,15 +38,18 @@ resource "aws_launch_configuration" "worker" {
   instance_type = "${var.instance_type}"
   key_name      = "${var.ssh_key}"
 
-  #user_data = "${data.ct_config.worker_ign.rendered}"
+  user_data = "${data.ct_config.worker_ign.rendered}"
 
   # storage
   root_block_device {
-    volume_type = "standard"
+    volume_type = "io1"
+    iops        = "500"
     volume_size = "${var.disk_size}"
   }
+
   # network
   security_groups = ["${var.security_groups}"]
+
   lifecycle {
     // Override the default destroy and replace update behavior
     create_before_destroy = true

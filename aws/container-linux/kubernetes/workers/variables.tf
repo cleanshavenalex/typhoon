@@ -15,6 +15,21 @@ variable "subnet_ids" {
   description = "Must be set to `subnet_ids` output by cluster"
 }
 
+variable "cluster_name" {
+  type        = "string"
+  description = "Cluster Name passed to workers module"
+}
+
+variable "dns_zone" {
+  type        = "string"
+  description = "DNS Zone passed to the workers module."
+}
+
+variable "dns_zone_id" {
+  type        = "string"
+  description = "Zone for the worker load balancer"
+}
+
 variable "worker_subnets" {
   type        = "list"
   description = "List of subnet ids to put worker nodes in"
