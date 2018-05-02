@@ -29,6 +29,20 @@ resource "aws_route53_record" "ingress" {
   }
 }
 
+resource "aws_route53_record" "ingress-public" {
+  zone_id = "${var.public_zone_id}"
+
+  name = "${format("ingress-%s.%s.", var.cluster_name, var.dns_zone)}"
+  type = "A"
+
+  # AWS recommends their special "alias" records for ELBs
+  alias {
+    name                   = "${aws_elb.ingress.dns_name}"
+    zone_id                = "${aws_elb.ingress.zone_id}"
+    evaluate_target_health = true
+  }
+}
+
 resource "aws_autoscaling_attachment" "ingress" {
   autoscaling_group_name = "${aws_autoscaling_group.workers.id}"
   elb                    = "${aws_elb.ingress.id}"

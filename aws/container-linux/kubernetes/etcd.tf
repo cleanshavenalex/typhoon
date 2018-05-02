@@ -46,8 +46,9 @@ resource "aws_instance" "etcd_node" {
 
   # storage
   root_block_device {
-    volume_type = "standard"
-    volume_size = "${var.disk_size}"
+    volume_type = "io1"
+    iops        = 1000
+    volume_size = 100
   }
 
   # network

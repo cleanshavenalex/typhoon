@@ -30,6 +30,11 @@ variable "dns_zone_id" {
   description = "Zone for the worker load balancer"
 }
 
+variable "public_zone_id" {
+  type        = "string"
+  description = "Public zone for the worker ingress"
+}
+
 variable "worker_subnets" {
   type        = "list"
   description = "List of subnet ids to put worker nodes in"

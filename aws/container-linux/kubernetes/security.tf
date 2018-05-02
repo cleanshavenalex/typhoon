@@ -136,6 +136,26 @@ resource "aws_security_group_rule" "controller-kubelet-self" {
   self      = true
 }
 
+resource "aws_security_group_rule" "controller-kubelet-cidr" {
+  security_group_id = "${aws_security_group.controller.id}"
+
+  type        = "ingress"
+  protocol    = "tcp"
+  from_port   = 10250
+  to_port     = 10250
+  cidr_blocks = ["${var.host_cidr}"]
+}
+
+resource "aws_security_group_rule" "controller-kubelet-cidr-1" {
+  security_group_id = "${aws_security_group.controller.id}"
+
+  type        = "ingress"
+  protocol    = "tcp"
+  from_port   = 10251
+  to_port     = 10251
+  cidr_blocks = ["${var.host_cidr}"]
+}
+
 resource "aws_security_group_rule" "controller-kubelet-self-2" {
   security_group_id = "${aws_security_group.controller.id}"
 
@@ -444,6 +464,26 @@ resource "aws_security_group_rule" "worker-kubelet" {
   from_port                = 10250
   to_port                  = 10250
   source_security_group_id = "${aws_security_group.controller.id}"
+}
+
+resource "aws_security_group_rule" "worker-kubelet-cidr" {
+  security_group_id = "${aws_security_group.worker.id}"
+
+  type        = "ingress"
+  protocol    = "tcp"
+  from_port   = 10250
+  to_port     = 10250
+  cidr_blocks = ["${var.host_cidr}"]
+}
+
+resource "aws_security_group_rule" "worker-kubelet-1-cidr" {
+  security_group_id = "${aws_security_group.worker.id}"
+
+  type        = "ingress"
+  protocol    = "tcp"
+  from_port   = 10251
+  to_port     = 10251
+  cidr_blocks = ["${var.host_cidr}"]
 }
 
 resource "aws_security_group_rule" "worker-kubelet-self" {

@@ -30,6 +30,11 @@ variable "dns_zone" {
   description = "AWS Route53 DNS Zone (e.g. aws.example.com)"
 }
 
+variable "public_zone_id" {
+  type        = "string"
+  description = "AWS Route53 Public DNS ZONE ID"
+}
+
 variable "dns_zone_id" {
   type        = "string"
   description = "AWS Route53 DNS Zone ID (e.g. Z3PAABBCFAKEC0)"
