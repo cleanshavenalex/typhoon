@@ -1,18 +1,3 @@
-# Discrete DNS records for each controller's private IPv4 for etcd usage
-# resource "aws_route53_record" "etcds" {
-#   count = "${var.controller_count}"
-
-#   # DNS Zone where record should be created
-#   zone_id = "${var.dns_zone_id}"
-
-#   name = "${format("%s-etcd%d.%s.", var.cluster_name, count.index, var.dns_zone)}"
-#   type = "A"
-#   ttl  = 60
-
-#   # private IPv4 address for etcd
-#   records = ["${element(aws_instance.controllers.*.private_ip, count.index)}"]
-# }
-
 # Controller instances
 resource "aws_instance" "controllers" {
   count = "${var.controller_count}"
@@ -29,8 +14,8 @@ resource "aws_instance" "controllers" {
   # storage
   root_block_device {
     volume_type = "io1"
-    iops        = 1000
-    volume_size = 100
+    iops        = "1000"
+    volume_size = "100"
   }
 
   # network

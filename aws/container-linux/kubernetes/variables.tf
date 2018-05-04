@@ -102,7 +102,7 @@ variable "disk_size" {
 
 variable "master_volume_size" {
   type        = "string"
-  default     = 64
+  default     = 100
   description = "RAM for each master node"
 }
 

@@ -43,8 +43,8 @@ resource "aws_launch_configuration" "worker" {
   # storage
   root_block_device {
     volume_type = "io1"
-    iops        = 1000
-    volume_size = 100
+    iops        = "1000"
+    volume_size = "100"
   }
 
   # network

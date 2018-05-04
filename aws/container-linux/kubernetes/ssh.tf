@@ -160,7 +160,6 @@ resource "null_resource" "bootkube-start" {
 
   provisioner "remote-exec" {
     inline = [
-      "echo 'hi'",
       "sudo mv $HOME/assets /opt/bootkube",
       "sudo systemctl start bootkube",
     ]
