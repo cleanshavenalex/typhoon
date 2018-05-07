@@ -59,7 +59,7 @@ systemd:
           --exit-on-lock-contention \
           --kubeconfig=/etc/kubernetes/kubeconfig \
           --lock-file=/var/run/lock/kubelet.lock \
-          --node-labels=node-role.kubernetes.io/master \
+          ${master} \
           --node-labels=node-role.kubernetes.io/controller="true" \
           --pod-manifest-path=/etc/kubernetes/manifests \
           --register-with-taints=node-role.kubernetes.io/master=:NoSchedule \

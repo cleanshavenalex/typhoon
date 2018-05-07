@@ -54,7 +54,7 @@ resource "aws_instance" "etcd_node" {
   # network
   associate_public_ip_address = false
 
-  subnet_id              = "${element(var.master_subnets, count.index)}"
+  subnet_id              = "${element(var.worker_subnets, count.index)}"
   vpc_security_group_ids = ["${aws_security_group.etcd.id}"]
 
   lifecycle {

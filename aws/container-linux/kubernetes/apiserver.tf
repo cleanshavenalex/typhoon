@@ -34,7 +34,7 @@ resource "aws_elb" "apiserver" {
 
   # count              = "${var.controller_count}"
   security_groups = ["${aws_security_group.controller.id}"]
-  subnets         = ["${var.master_subnets}", "${var.master_subnets[1]}"]
+  subnets         = ["${var.master_subnets}"]
 
   listener {
     instance_port     = 443

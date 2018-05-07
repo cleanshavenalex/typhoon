@@ -276,29 +276,28 @@ resource "aws_security_group" "etcd" {
     to_port     = 0
   }
 
-  ingress {
-    protocol  = "tcp"
-    from_port = 22
-    to_port   = 22
+  # ingress {
+  #   protocol  = "tcp"
+  #   from_port = 22
+  #   to_port   = 22
 
-    security_groups = ["${aws_security_group.controller.id}", "${aws_security_group.worker.id}"]
-  }
+
+  #   cidr_blocks = ["${var.host_cidr}"]
+  # }
 
   ingress {
     protocol  = "tcp"
     from_port = 2379
     to_port   = 2380
 
-    security_groups = ["${aws_security_group.controller.id}", "${aws_security_group.worker.id}"]
+    cidr_blocks = ["${var.host_cidr}"]
   }
-
   ingress {
     protocol  = "tcp"
     from_port = 2380
     to_port   = 2380
     self      = true
   }
-
   ingress {
     protocol  = "tcp"
     from_port = 2379
