@@ -184,6 +184,10 @@ variable "worker_subnets" {
   type = "list"
 }
 
+variable "public_subnets" {
+  type = "list"
+}
+
 variable "master_azs" {
   type = "list"
 }

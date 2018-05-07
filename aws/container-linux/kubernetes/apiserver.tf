@@ -32,9 +32,9 @@ resource "aws_elb" "apiserver" {
   name     = "${var.cluster_name}-apiserver"
   internal = true
 
-  # count              = "${var.controller_count}"
-  security_groups = ["${aws_security_group.controller.id}"]
-  subnets         = ["${var.master_subnets}"]
+  security_groups = ["${var.vpn_security_group}", "${aws_security_group.controller.id}", "${aws_security_group.worker.id}", "${aws_security_group.etcd.id}"]
+
+  subnets = ["${var.public_subnets}"]
 
   listener {
     instance_port     = 443
@@ -45,6 +45,6 @@ resource "aws_elb" "apiserver" {
     #ssl_certificate_id = "${var.elb_ssl_certificate_id}"
   }
 
-  instances                 = ["${aws_instance.controllers.*.id}"]
-  cross_zone_load_balancing = true
+  instances           = ["${aws_instance.controllers.*.id}"]
+  connection_draining = true
 }
