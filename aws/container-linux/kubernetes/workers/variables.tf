@@ -40,6 +40,11 @@ variable "worker_subnets" {
   description = "List of subnet ids to put worker nodes in"
 }
 
+variable "public_subnets" {
+  type        = "list"
+  description = "List of public subnets for worker ingress load balancer. Should have a subnet in each zone of the worker private subnets."
+}
+
 variable "security_groups" {
   type        = "list"
   description = "Must be set to `worker_security_groups` output by cluster"

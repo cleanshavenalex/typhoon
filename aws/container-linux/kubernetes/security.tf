@@ -11,15 +11,6 @@ resource "aws_security_group_rule" "vpn-ssh-to-controllers" {
   cidr_blocks       = ["${var.host_cidr}"]
 }
 
-resource "aws_security_group_rule" "vpn-ssh-to-etcd" {
-  security_group_id = "${aws_security_group.etcd.id}"
-  type              = "ingress"
-  protocol          = "tcp"
-  from_port         = 22
-  to_port           = 22
-  cidr_blocks       = ["${var.host_cidr}"]
-}
-
 resource "aws_security_group_rule" "vpn-443-to-controllers" {
   security_group_id        = "${aws_security_group.controller.id}"
   type                     = "ingress"
@@ -66,15 +57,15 @@ resource "aws_security_group_rule" "controller-icmp" {
   cidr_blocks = ["0.0.0.0/0"]
 }
 
-# resource "aws_security_group_rule" "controller-ssh" {
-#   security_group_id = "${aws_security_group.controller.id}"
+resource "aws_security_group_rule" "controller-http-apiserver" {
+  security_group_id = "${aws_security_group.controller.id}"
 
-#   type        = "ingress"
-#   protocol    = "tcp"
-#   from_port   = 22
-#   to_port     = 22
-#   cidr_blocks = ["0.0.0.0/0"]
-# }
+  type        = "ingress"
+  protocol    = "tcp"
+  from_port   = 80
+  to_port     = 80
+  cidr_blocks = ["0.0.0.0/0"]
+}
 
 resource "aws_security_group_rule" "controller-apiserver" {
   security_group_id = "${aws_security_group.controller.id}"
@@ -84,6 +75,26 @@ resource "aws_security_group_rule" "controller-apiserver" {
   from_port   = 443
   to_port     = 443
   cidr_blocks = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "controller-kubeports-self" {
+  security_group_id = "${aws_security_group.controller.id}"
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 32000
+  to_port   = 32767
+  self      = true
+}
+
+resource "aws_security_group_rule" "controller-kubeports-worker" {
+  security_group_id = "${aws_security_group.controller.id}"
+
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 32000
+  to_port                  = 32767
+  source_security_group_id = "${aws_security_group.worker.id}"
 }
 
 resource "aws_security_group_rule" "controller-etcd" {
@@ -116,16 +127,6 @@ resource "aws_security_group_rule" "controller-flannel-self" {
   self      = true
 }
 
-resource "aws_security_group_rule" "controller-node-exporter" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type                     = "ingress"
-  protocol                 = "tcp"
-  from_port                = 9100
-  to_port                  = 9100
-  source_security_group_id = "${aws_security_group.worker.id}"
-}
-
 resource "aws_security_group_rule" "controller-kubelet-self" {
   security_group_id = "${aws_security_group.controller.id}"
 
@@ -146,24 +147,74 @@ resource "aws_security_group_rule" "controller-kubelet-cidr" {
   cidr_blocks = ["${var.host_cidr}"]
 }
 
-resource "aws_security_group_rule" "controller-kubelet-cidr-1" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type        = "ingress"
-  protocol    = "tcp"
-  from_port   = 10251
-  to_port     = 10251
-  cidr_blocks = ["${var.host_cidr}"]
-}
-
-resource "aws_security_group_rule" "controller-kubelet-self-2" {
+resource "aws_security_group_rule" "controller-kubelet-etcd10k" {
   security_group_id = "${aws_security_group.controller.id}"
 
   type      = "ingress"
   protocol  = "tcp"
-  from_port = 10251
-  to_port   = 10251
+  from_port = 12379
+  to_port   = 12380
   self      = true
+}
+
+resource "aws_security_group_rule" "controller-udp-self" {
+  security_group_id = "${aws_security_group.controller.id}"
+
+  type      = "ingress"
+  protocol  = "udp"
+  from_port = 4789
+  to_port   = 4789
+  self      = true
+}
+
+resource "aws_security_group_rule" "controller-udp-worker" {
+  security_group_id = "${aws_security_group.controller.id}"
+
+  type                     = "ingress"
+  protocol                 = "udp"
+  from_port                = 4789
+  to_port                  = 4789
+  source_security_group_id = "${aws_security_group.worker.id}"
+}
+
+resource "aws_security_group_rule" "controller-4194-self" {
+  security_group_id = "${aws_security_group.controller.id}"
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 4194
+  to_port   = 4194
+  self      = true
+}
+
+resource "aws_security_group_rule" "controller-4194-worker" {
+  security_group_id = "${aws_security_group.controller.id}"
+
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 4194
+  to_port                  = 4194
+  source_security_group_id = "${aws_security_group.worker.id}"
+}
+
+resource "aws_security_group_rule" "controller-9100-self" {
+  security_group_id = "${aws_security_group.controller.id}"
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 9100
+  to_port   = 9100
+  self      = true
+}
+
+resource "aws_security_group_rule" "controller-9100-worker" {
+  security_group_id = "${aws_security_group.controller.id}"
+
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 9100
+  to_port                  = 9100
+  source_security_group_id = "${aws_security_group.worker.id}"
 }
 
 resource "aws_security_group_rule" "controller-kubelet-read" {
@@ -276,14 +327,13 @@ resource "aws_security_group" "etcd" {
     to_port     = 0
   }
 
-  # ingress {
-  #   protocol  = "tcp"
-  #   from_port = 22
-  #   to_port   = 22
+  ingress {
+    protocol  = "tcp"
+    from_port = 22
+    to_port   = 22
 
-
-  #   cidr_blocks = ["${var.host_cidr}"]
-  # }
+    cidr_blocks = ["${var.host_cidr}"]
+  }
 
   ingress {
     protocol  = "tcp"
@@ -292,12 +342,14 @@ resource "aws_security_group" "etcd" {
 
     cidr_blocks = ["${var.host_cidr}"]
   }
+
   ingress {
     protocol  = "tcp"
     from_port = 2380
     to_port   = 2380
     self      = true
   }
+
   ingress {
     protocol  = "tcp"
     from_port = 2379
@@ -375,6 +427,36 @@ resource "aws_security_group" "worker" {
   tags = "${map("Name", "${var.cluster_name}-worker")}"
 }
 
+resource "aws_security_group_rule" "worker-kubeports-controller" {
+  security_group_id = "${aws_security_group.worker.id}"
+
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 32000
+  to_port                  = 32767
+  source_security_group_id = "${aws_security_group.controller.id}"
+}
+
+resource "aws_security_group_rule" "worker-30k" {
+  security_group_id = "${aws_security_group.worker.id}"
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 30000
+  to_port   = 32000
+  self      = true
+}
+
+resource "aws_security_group_rule" "worker-kubeports-self" {
+  security_group_id = "${aws_security_group.worker.id}"
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 32000
+  to_port   = 32767
+  self      = true
+}
+
 resource "aws_security_group_rule" "worker-icmp" {
   security_group_id = "${aws_security_group.worker.id}"
 
@@ -402,7 +484,7 @@ resource "aws_security_group_rule" "worker-http" {
   protocol    = "tcp"
   from_port   = 80
   to_port     = 80
-  cidr_blocks = ["${var.host_cidr}"]
+  cidr_blocks = ["0.0.0.0/0"]
 }
 
 resource "aws_security_group_rule" "worker-https" {
@@ -443,6 +525,16 @@ resource "aws_security_group_rule" "worker-node-exporter" {
   from_port = 9100
   to_port   = 9100
   self      = true
+}
+
+resource "aws_security_group_rule" "worker-node-exporter-controller" {
+  security_group_id = "${aws_security_group.worker.id}"
+
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 9100
+  to_port                  = 9100
+  source_security_group_id = "${aws_security_group.controller.id}"
 }
 
 resource "aws_security_group_rule" "ingress-health" {
@@ -513,6 +605,66 @@ resource "aws_security_group_rule" "worker-kubelet-read-self" {
   from_port = 10255
   to_port   = 10255
   self      = true
+}
+
+resource "aws_security_group_rule" "worker-udp-self" {
+  security_group_id = "${aws_security_group.worker.id}"
+
+  type      = "ingress"
+  protocol  = "udp"
+  from_port = 4789
+  to_port   = 4789
+  self      = true
+}
+
+resource "aws_security_group_rule" "worker-udp-controller" {
+  security_group_id = "${aws_security_group.worker.id}"
+
+  type                     = "ingress"
+  protocol                 = "udp"
+  from_port                = 4789
+  to_port                  = 4789
+  source_security_group_id = "${aws_security_group.controller.id}"
+}
+
+resource "aws_security_group_rule" "worker-4194-self" {
+  security_group_id = "${aws_security_group.worker.id}"
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 4194
+  to_port   = 4194
+  self      = true
+}
+
+resource "aws_security_group_rule" "worker-4194-controller" {
+  security_group_id = "${aws_security_group.worker.id}"
+
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 4194
+  to_port                  = 4194
+  source_security_group_id = "${aws_security_group.controller.id}"
+}
+
+resource "aws_security_group_rule" "worker-all-self" {
+  security_group_id = "${aws_security_group.worker.id}"
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 0
+  to_port   = 65535
+  self      = true
+}
+
+resource "aws_security_group_rule" "worker-all-vpn" {
+  security_group_id = "${aws_security_group.worker.id}"
+
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 0
+  to_port                  = 65535
+  source_security_group_id = "${var.vpn_security_group}"
 }
 
 resource "aws_security_group_rule" "worker-bgp" {

@@ -8,6 +8,7 @@ module "workers" {
   dns_zone        = "${var.dns_zone}"
   dns_zone_id     = "${var.dns_zone_id}"
   public_zone_id  = "${var.public_zone_id}"
+  public_subnets  = ["${var.public_subnets}"]
   subnet_ids      = ["${var.worker_subnets}"]
   worker_subnets  = ["${var.worker_subnets}"]
   security_groups = ["${aws_security_group.worker.id}"]

@@ -20,9 +20,9 @@ resource "aws_instance" "controllers" {
 
   # network
   associate_public_ip_address = false
-
-  subnet_id              = "${var.master_subnets[0]}"
-  vpc_security_group_ids = ["${aws_security_group.controller.id}"]
+  source_dest_check           = false
+  subnet_id                   = "${var.master_subnets[count.index]}"
+  vpc_security_group_ids      = ["${aws_security_group.controller.id}"]
 
   lifecycle {
     ignore_changes = ["ami"]
@@ -44,6 +44,7 @@ data "template_file" "controller_config" {
   template = "${file("${path.module}/cl/controller.yaml.tmpl")}"
 
   vars = {
+    pod_cidr              = "${var.pod_cidr}"
     kubeconfig            = "${indent(10, module.bootkube.kubeconfig)}"
     master                = "${count.index == 0 ? var.master_label : var.empty_string }"
     key_name              = "${var.ssh_key}"

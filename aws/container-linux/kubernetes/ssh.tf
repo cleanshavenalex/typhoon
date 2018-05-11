@@ -50,9 +50,8 @@ resource "null_resource" "copy-controller-secrets" {
   }
   provisioner "remote-exec" {
     inline = [
-      # "sudo mv ca.crt /etc/kubernetes/ca.crt",
+      "sudo mkdir -p /etc/ssl/etcd",
       "sudo mkdir -p /etc/ssl/etcd/etcd",
-
       "sudo mv etcd-client* /etc/ssl/etcd/",
       "sudo cp /etc/ssl/etcd/etcd-client-ca.crt /etc/ssl/etcd/etcd/server-ca.crt",
       "sudo mv etcd-server.crt /etc/ssl/etcd/etcd/server.crt",
@@ -118,9 +117,8 @@ resource "null_resource" "copy-etcd-secrets" {
   }
   provisioner "remote-exec" {
     inline = [
-      # "sudo mv ca.crt /etc/kubernetes/ca.crt",
+      "sudo mkdir -p /etc/ssl/etcd",
       "sudo mkdir -p /etc/ssl/etcd/etcd",
-
       "sudo mv etcd-client* /etc/ssl/etcd/",
       "sudo cp /etc/ssl/etcd/etcd-client-ca.crt /etc/ssl/etcd/etcd/server-ca.crt",
       "sudo mv etcd-server.crt /etc/ssl/etcd/etcd/server.crt",
@@ -139,6 +137,10 @@ resource "null_resource" "copy-etcd-secrets" {
 resource "null_resource" "bootkube-start" {
   depends_on = [
     "module.bootkube",
+    "aws_route53_record.etcd_srv_discover",
+    "aws_route53_record.etcd_srv_client",
+    "aws_route53_record.etc_a_nodes",
+    "aws_instance.etcd_node",
     "module.workers",
     "aws_route53_record.apiserver",
     "null_resource.copy-controller-secrets",
