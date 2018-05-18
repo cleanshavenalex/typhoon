@@ -15,6 +15,11 @@ output "vpc_id" {
   description = "ID of the VPC for creating worker instances"
 }
 
+output "pod_cidr" {
+  value       = "${var.pod_cidr}"
+  description = "pod cidr"
+}
+
 output "cluster_name" {
   value       = "${var.cluster_name}"
   description = "Cluster Name"
@@ -42,6 +47,11 @@ output "controller_security_groups" {
 output "worker_subnets" {
   value       = ["${var.worker_subnets}"]
   description = "List of subnet IDs for creating worker instances"
+}
+
+output "worker_iam_role" {
+  value       = "${var.worker_iam_role}"
+  description = "Worker IAM Role used for PVC"
 }
 
 output "subnet_ids" {

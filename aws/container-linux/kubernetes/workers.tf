@@ -14,14 +14,16 @@ module "workers" {
   security_groups = ["${aws_security_group.worker.id}"]
   count           = "${var.worker_count}"
 
-  instance_type = "${var.worker_type}"
-  os_channel    = "${var.os_channel}"
-  disk_size     = "${var.disk_size}"
+  instance_type   = "${var.worker_type}"
+  worker_iam_role = "${var.worker_iam_role}"
+  os_channel      = "${var.os_channel}"
+  disk_size       = "${var.disk_size}"
 
   # configuration
   kubeconfig            = "${module.bootkube.kubeconfig}"
   ssh_key               = "${var.ssh_key}"
   service_cidr          = "${var.service_cidr}"
+  pod_cidr              = "${var.pod_cidr}"
   cluster_domain_suffix = "${var.cluster_domain_suffix}"
   clc_snippets          = "${var.worker_clc_snippets}"
 }

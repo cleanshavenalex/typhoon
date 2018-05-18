@@ -64,6 +64,12 @@ variable "instance_type" {
   description = "EC2 instance type"
 }
 
+variable "worker_iam_role" {
+  type        = "string"
+  default     = ""
+  description = "IAM Role for worker nodes. Used for PVC."
+}
+
 variable "os_channel" {
   type        = "string"
   default     = "stable"
@@ -92,6 +98,16 @@ variable "kubeconfig" {
 variable "ssh_key" {
   type        = "string"
   description = "Name of the key pair to use for worker instances"
+}
+
+variable "pod_cidr" {
+  description = <<EOD
+CIDR IPv4 range to assign Kubernetes pods.
+The 1st IP will be reserved for kube_apiserver, the 10th IP will be reserved for kube-dns.
+EOD
+
+  type    = "string"
+  default = "10.2.0.0/16"
 }
 
 variable "service_cidr" {

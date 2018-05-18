@@ -221,3 +221,13 @@ variable "bastion_security_group" {
   type        = "string"
   description = "Pre-existing security group for the bastion host."
 }
+
+variable "master_iam_role" {
+  type        = "string"
+  description = "IAM role for master nodes"
+}
+
+variable "worker_iam_role" {
+  type        = "string"
+  description = "IAM role for master nodes"
+}

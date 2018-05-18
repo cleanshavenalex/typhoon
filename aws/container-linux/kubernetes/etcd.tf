@@ -101,5 +101,6 @@ data "ct_config" "etcd_ign" {
   content      = "${element(data.template_file.etcd_config.*.rendered, count.index)}"
   pretty_print = false
 
-  # snippets     = ["${var.controller_clc_snippets}"]
+  # For AWS USER DATA, etc
+  # snippets     = ["${var.etcd_clc_snippets}"]
 }

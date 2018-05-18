@@ -56,11 +56,10 @@ systemd:
           --cluster_dns=${k8s_dns_service_ip} \
           --cluster_domain=${cluster_domain_suffix} \
           --cni-conf-dir=/etc/kubernetes/cni/net.d \
-          --network-plugin=cni \
+          --pod-cidr={pod_cidr} \
           --exit-on-lock-contention \
           --kubeconfig=/etc/kubernetes/kubeconfig \
           --lock-file=/var/run/lock/kubelet.lock \
-          --pod-cidr="{pod_cidr}" \
           ${master} \
           --node-labels=node-role.kubernetes.io/controller="true" \
           --pod-manifest-path=/etc/kubernetes/manifests \
